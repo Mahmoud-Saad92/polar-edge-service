@@ -4,6 +4,9 @@ application:
 
 server:
   port: ${SERVER_PORT}
+  netty:
+    connection-timeout: ${SERVER_CONNECTION_TIMEOUT} # how long to wait for a TCP connection to be established with the server
+    idle-timeout: ${SERVER_IDLE_TIMEOUT} # how long to wait before closing a TCP connection if no data is transferred
   shutdown: graceful
 
 spring:
@@ -11,3 +14,37 @@ spring:
     name: edge-service
   profiles:
     active: ${ACTIVE_PROFILE}
+  lifecycle:
+    timeout-per-shutdown-phase: ${LIFECYCLE_TIMEOUT_PER_SHUTDOWN} # defines N-second grace period for the application to terminate
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: catalog-service
+              uri: ${CATALOG_SERVICE_URL}
+              predicates:
+                - Path=/api/v1/catalog/**
+            - id: order-service
+              uri: ${ORDER_SERVICE_URL}
+              predicates:
+                - Path=/api/v1/orders/**
+          httpclient:
+            pool:
+              type: elastic
+              max-idle-time: ${GATEWAY_HTTPCLIENT_POOL_MAX_IDLE_TIME}
+              max-life-time: ${GATEWAY_HTTPCLIENT_POOL_MAX_LIFE_TIME}
+            connect-timeout: ${GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT}
+            response-timeout: ${GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT}
+          default-filters:
+            - name: Retry
+              args:
+                retries: ${RETRY_COUNT}
+                methods: GET
+                series: SERVER_ERROR
+                exceptions: java.io.IOException, java.util.concurrent.TimeoutException
+                backoff:
+                  firstBackoff: ${RETRY_FIRST_BACKOFF}
+                  maxBackoff: ${RETRY_MAX_BACKOFF}
+                  factor: ${RETRY_FACTOR}
+                  basedOnPreviousValue: false
