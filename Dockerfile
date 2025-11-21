@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.m2/repository \
 #stage: extract
 FROM eclipse-temurin:21.0.5_11-jre AS extract
 WORKDIR /usr/bin
-COPY --from=builder /code/build/target/order-service-0.0.1.jar ./app.jar
+COPY --from=builder /code/build/target/edge-service-0.0.1.jar ./app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher
 
 #stage: run
