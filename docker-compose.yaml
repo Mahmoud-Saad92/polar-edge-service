@@ -1,0 +1,42 @@
+services:
+  app:
+    container_name: edge-service
+    image: edge-service:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+    environment:
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE}
+      SERVER_PORT: ${CONTAINER_PORT}
+      SERVER_CONNECTION_TIMEOUT: ${SERVER_CONNECTION_TIMEOUT}
+      SERVER_IDLE_TIMEOUT: ${SERVER_IDLE_TIMEOUT}
+      LIFECYCLE_TIMEOUT_PER_SHUTDOWN: ${LIFECYCLE_TIMEOUT_PER_SHUTDOWN}
+      CATALOG_SERVICE_URL: ${CATALOG_SERVICE_URL}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      GATEWAY_HTTPCLIENT_POOL_MAX_IDLE_TIME: ${GATEWAY_HTTPCLIENT_POOL_MAX_IDLE_TIME}
+      GATEWAY_HTTPCLIENT_POOL_MAX_LIFE_TIME: ${GATEWAY_HTTPCLIENT_POOL_MAX_LIFE_TIME}
+      GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT: ${GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT}
+      GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT: ${GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT}
+      RETRY_COUNT: ${RETRY_COUNT}
+      RETRY_FIRST_BACKOFF: ${RETRY_FIRST_BACKOFF}
+      RETRY_MAX_BACKOFF: ${RETRY_MAX_BACKOFF}
+      RETRY_FACTOR: ${RETRY_FACTOR}
+    networks:
+      polar-nw:
+        aliases:
+          - 'edge-service'
+      postgres:
+        aliases:
+          - 'edge-service'
+
+networks:
+  polar-nw:
+    name: polar-nw
+    external: true
+  postgres:
+    name: polar-postgres-nw
+    external: true
