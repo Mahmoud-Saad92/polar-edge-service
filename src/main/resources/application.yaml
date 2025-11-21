@@ -1,0 +1,13 @@
+application:
+  version: @project.version@
+  title: BZA[edge-service]
+
+server:
+  port: ${SERVER_PORT}
+  shutdown: graceful
+
+spring:
+  application:
+    name: edge-service
+  profiles:
+    active: ${ACTIVE_PROFILE}
