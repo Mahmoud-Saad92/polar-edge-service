@@ -59,3 +59,13 @@ spec:
               value: '500ms'
             - name: RETRY_FACTOR
               value: '2'
+            - name: CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE
+              value: '20'
+            - name: CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD
+              value: '50'
+            - name: CIRCUIT_BREAKER_WAIT_MS_DURATION_IN_OPEN_STATE
+              value: '15000'
+            - name: CIRCUIT_BREAKER_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE
+              value: '5'
+            - name: TIME_LIMITER_TIMEOUT_DURATION
+              value: '5s'
