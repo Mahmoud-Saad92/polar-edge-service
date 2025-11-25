@@ -8,6 +8,12 @@ server:
 spring:
   lifecycle:
     timeout-per-shutdown-phase: 15s
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 1s
+      connect-timeout: 2s
   cloud:
     gateway:
       server:
@@ -17,10 +23,19 @@ spring:
               uri: http://localhost:8135
               predicates:
                 - Path=/api/v1/catalog/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: catalogCircuitBreaker
+                    fallbackUri: forward:/catalog-fallback
             - id: order-service
               uri: http://localhost:8136
               predicates:
                 - Path=/api/v1/orders/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: orderCircuitBreaker
           httpclient:
             pool:
               type: elastic
@@ -40,6 +55,25 @@ spring:
                   maxBackoff: 500ms
                   factor: 2
                   basedOnPreviousValue: false
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: 10
+                  burstCapacity: 20
+                  requestedTokens: 1
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+        permittedNumberOfCallsInHalfOpenState: 5
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
 
 logging:
   level:
@@ -47,3 +81,4 @@ logging:
     org.springframework.boot: debug
     org.springframework.cloud.gateway: debug
     org.springframework.web: debug
+    io.github.resilience4j: debug

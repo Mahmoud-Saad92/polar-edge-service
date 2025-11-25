@@ -16,6 +16,12 @@ spring:
     active: ${ACTIVE_PROFILE}
   lifecycle:
     timeout-per-shutdown-phase: ${LIFECYCLE_TIMEOUT_PER_SHUTDOWN} # defines N-second grace period for the application to terminate
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: ${REDIS_TIMEOUT}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT}
   cloud:
     gateway:
       server:
@@ -25,10 +31,19 @@ spring:
               uri: ${CATALOG_SERVICE_URL}
               predicates:
                 - Path=/api/v1/catalog/**
+              filter:
+                - name: CircuitBreaker
+                  args:
+                    name: catalogCircuitBreaker
+                    fallbackUri: forward:/catalog-fallback
             - id: order-service
               uri: ${ORDER_SERVICE_URL}
               predicates:
                 - Path=/api/v1/orders/**
+              filter:
+                - name: CircuitBreaker
+                  args:
+                    name: orderCircuitBreaker
           httpclient:
             pool:
               type: elastic
@@ -48,3 +63,30 @@ spring:
                   maxBackoff: ${RETRY_MAX_BACKOFF}
                   factor: ${RETRY_FACTOR}
                   basedOnPreviousValue: false
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: ${REDIS_RATE_LIMITER_REPLENISH_RATE} # Number of tokens dripped in the bucket each second
+                  burstCapacity: ${REDIS_RATE_LIMITER_BURST_CAPACITY} # Allows request bursts of up to X requests
+                  requestedTokens: ${REDIS_RATE_LIMITER_REQUESTED_TOKENS} # how many tokens a request costs
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: ${CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE}
+        failureRateThreshold: ${CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD}
+        waitDurationInOpenState: ${CIRCUIT_BREAKER_WAIT_MS_DURATION_IN_OPEN_STATE}
+        permittedNumberOfCallsInHalfOpenState: ${CIRCUIT_BREAKER_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE}
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: ${TIME_LIMITER_TIMEOUT_DURATION} # take precedence over gateway.server.webflux.httpclient response timeout
+
+logging:
+  level:
+    com.bazinga.eg.edgeservice: warn
+    org.springframework.boot: warn
+    org.springframework.cloud.gateway: warn
+    org.springframework.web: warn
+    io.github.resilience4j: warn
