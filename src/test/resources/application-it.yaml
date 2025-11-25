@@ -22,10 +22,19 @@ spring:
               uri: http://localhost:8135
               predicates:
                 - Path=/api/v1/catalog/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: catalogCircuitBreaker
+                    fallbackUri: forward:/catalog-fallback
             - id: order-service
               uri: http://localhost:8136
               predicates:
                 - Path=/api/v1/orders/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: orderCircuitBreaker
           httpclient:
             pool:
               type: elastic
@@ -51,3 +60,16 @@ spring:
                   replenishRate: 10
                   burstCapacity: 20
                   requestedTokens: 1
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+        permittedNumberOfCallsInHalfOpenState: 5
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
