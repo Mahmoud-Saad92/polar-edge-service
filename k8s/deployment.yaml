@@ -40,9 +40,9 @@ spec:
             - name: LIFECYCLE_TIMEOUT_PER_SHUTDOWN
               value: '15s'
             - name: CATALOG_SERVICE_URL
-              value: 'http://localhost:8135'
+              value: 'catalog-service:80'
             - name: ORDER_SERVICE_URL
-              value: 'http://localhost:8136'
+              value: 'order-service:80'
             - name: GATEWAY_HTTPCLIENT_POOL_MAX_IDLE_TIME
               value: '15s'
             - name: GATEWAY_HTTPCLIENT_POOL_MAX_LIFE_TIME
@@ -69,3 +69,21 @@ spec:
               value: '5'
             - name: TIME_LIMITER_TIMEOUT_DURATION
               value: '5s'
+            - name: REDIS_HOST
+              value: 'polar-redis'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: REDIS_TIMEOUT
+              value: '1s'
+            - name: REDIS_CONNECT_TIMEOUT
+              value: '2s'
+            - name: REDIS_RATE_LIMITER_REPLENISH_RATE
+              value: '10'
+            - name: REDIS_RATE_LIMITER_BURST_CAPACITY
+              value: '20'
+            - name: REDIS_RATE_LIMITER_REQUESTED_TOKENS
+              value: '1'
+            - name: SESSION_TIMEOUT
+              value: '10m'
+            - name: SESSION_REDIS_NAMESPACE
+              value: 'polar:edge'
