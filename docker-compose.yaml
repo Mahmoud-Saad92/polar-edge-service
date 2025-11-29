@@ -37,6 +37,8 @@ services:
       REDIS_RATE_LIMITER_REPLENISH_RATE: ${REDIS_RATE_LIMITER_REPLENISH_RATE}
       REDIS_RATE_LIMITER_BURST_CAPACITY: ${REDIS_RATE_LIMITER_BURST_CAPACITY}
       REDIS_RATE_LIMITER_REQUESTED_TOKENS: ${REDIS_RATE_LIMITER_REQUESTED_TOKENS}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT}
+      SESSION_REDIS_NAMESPACE: ${SESSION_REDIS_NAMESPACE}
     networks:
       polar-nw:
         aliases:
@@ -44,7 +46,7 @@ services:
       postgres:
         aliases:
           - 'edge-service'
-      polar-redis-nw:
+      redis:
         aliases:
           - 'edge-service'
 
@@ -55,6 +57,6 @@ networks:
   postgres:
     name: polar-postgres-nw
     external: true
-  polar-redis-nw:
+  redis:
     name: polar-redis-nw
     external: true
